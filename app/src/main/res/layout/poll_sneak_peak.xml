@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:paddingBottom="5dp"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/sneak_peak_tv"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+
+
+        android:text="TextView" />
+
+    <ProgressBar
+        android:id="@+id/sneak_peak_pb"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:max="100"
+        android:paddingStart="10dp" />
+</LinearLayout>

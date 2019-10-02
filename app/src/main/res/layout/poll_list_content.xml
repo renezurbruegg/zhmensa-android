@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools2="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    xmlns:tools="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.card.MaterialCardView
+        style="@style/CardView.Light"
+        android:id="@+id/card_view"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/id_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/text_margin"
+            android:layout_marginTop="8dp"
+            android:text="test1"
+            android:textAppearance="?attr/textAppearanceListItem"
+            tools:layout_constraintBottom_toBottomOf="parent"
+            tools:layout_constraintStart_toEndOf="parent"
+            tools:layout_constraintStart_toStartOf="parent"
+            tools:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/weekday_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/text_margin"
+            android:layout_marginTop="8dp"
+            android:text="test"
+            android:textAppearance="?attr/textAppearanceListItem"
+            tools:layout_constraintBottom_toBottomOf="parent"
+            tools:layout_constraintEnd_toStartOf="@+id/hide_poll"
+            tools:layout_constraintTop_toTopOf="parent" />
+
+
+        <ImageButton
+            android:id="@+id/hide_poll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            tools:layout_constraintBottom_toBottomOf="parent"
+            tools:layout_constraintEnd_toStartOf="@+id/share_poll"
+            tools:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/ic_delete_black_24dp" />
+
+
+        <ImageButton
+            android:id="@+id/share_poll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="8dp"
+
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            tools:layout_constraintBottom_toBottomOf="parent"
+            tools:layout_constraintEnd_toEndOf="parent"
+            tools:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/ic_share_black_24dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>
