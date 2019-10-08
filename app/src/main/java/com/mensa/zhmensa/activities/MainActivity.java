@@ -1,8 +1,6 @@
 package com.mensa.zhmensa.activities;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -30,31 +28,28 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.mensa.zhmensa.PollListActivity;
 import com.mensa.zhmensa.R;
 import com.mensa.zhmensa.component.InterceptAllVerticalSwipesViewPager;
 import com.mensa.zhmensa.component.fragments.MensaOverviewFragment;
+import com.mensa.zhmensa.models.FavoriteMensa;
 import com.mensa.zhmensa.models.Mensa;
 import com.mensa.zhmensa.models.MensaUpdateModel;
 import com.mensa.zhmensa.models.categories.MensaCategory;
-import com.mensa.zhmensa.models.menu.IMenu;
 import com.mensa.zhmensa.navigation.NavigationExpandableListAdapter;
 import com.mensa.zhmensa.navigation.NavigationMenuChild;
-import com.mensa.zhmensa.PollListActivity;
 import com.mensa.zhmensa.services.Helper;
 import com.mensa.zhmensa.services.HttpUtils;
 import com.mensa.zhmensa.services.MensaManager;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 
 
 /**
@@ -199,60 +194,6 @@ public class MainActivity extends LanguageChangableActivity
     }
 
 
-    private String buidJsonObject(Mensa selectedMensa) throws JSONException {
-
-        StringBuffer options = new StringBuffer("[");
-
-        for(IMenu menu : selectedMensa.getMenusForDayAndCategory(Mensa.Weekday.of(MensaManager.SELECTED_DAY), MensaManager.MEAL_TYPE)) {
-            options.append("\"" + menu.getName() + ": " + menu.getDescription()).append("\",");
-        }
-        options.replace(options.length() - 1, options.length(), "]");
-        Log.d("jsonObj", options.toString());
-
-        JSONObject jsonObject = new JSONObject();
-
-
-        return options.toString();
-    }
-
-
-    @SuppressLint("StaticFieldLeak")
-    private void sharePoll() {
-
-
-            // Start share action
-        final Intent i = new Intent(android.content.Intent.ACTION_SEND);
-        i.setType("text/plain");
-
-
-
-        new AsyncTask<Void, Void, String>(){
-            @Override
-            protected String doInBackground(Void... voids) {
-                try {
-                    Log.d("req123", "starting req");
-                    int id = HttpUtils.postByUrl("https://www.strawpoll.me/api/v2/pollOption", buidJsonObject(selectedMensa));
-                    Log.e("msg", "id:" + id);
-                    return "https://www.strawpoll.me/" + id;
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e("error", "",e);
-                } catch (JSONException e) {
-                    Log.e("error", "",e);
-                    e.printStackTrace();
-                }
-                return "";
-            }
-
-            @Override
-            protected void onPostExecute(String returnValue) {
-                i.putExtra(android.content.Intent.EXTRA_TEXT, returnValue);
-                startActivity(Intent.createChooser(i, "Share"));
-            }
-        }.execute();
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -274,7 +215,7 @@ public class MainActivity extends LanguageChangableActivity
         HttpUtils.setupClient(getApplicationContext());
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(getString(R.string.favorites_title));
+        getSupportActionBar().setTitle(getBaseContext().getString(R.string.favorites_title));
 
         initializeSidebarDrawer();
 
@@ -293,7 +234,7 @@ public class MainActivity extends LanguageChangableActivity
         //MensaManager.clearCache(getBaseContext());
         // Load all mensas
         for (MensaCategory category : MensaManager.getMensaCategories()) {
-            MensaManager.loadMensasForCategory(category, false, getApplicationContext());
+            MensaManager.loadMensasForCategory(category, true, getApplicationContext());
         }
 
 
@@ -315,13 +256,16 @@ public class MainActivity extends LanguageChangableActivity
             public void onPageSelected(int position) {
                 // Set title to current mensa name
                 selectedMensa = MensaManager.getMensaForId(getMensaIdForPosition(position));
+                String title;
 
                 if (selectedMensa == null) {
                     Log.e("On page change listener", "Mensa was null");
                     return;
+                } else if(selectedMensa instanceof FavoriteMensa) {
+                    title = getBaseContext().getString(R.string.favorites_title);
+                } else {
+                    title = selectedMensa.getDisplayName();
                 }
-                String title = selectedMensa.getDisplayName();
-
                 getSupportActionBar().setTitle(title);
             }
 
@@ -333,6 +277,15 @@ public class MainActivity extends LanguageChangableActivity
             }
         });
 
+        setUpSwipeRefreshView(swipeView);
+        selectedMensa = MensaManager.getFavoritesMensa();
+    }
+
+    /**
+     * Sets up swipe refresh Layout
+     * @param swipeView the SwipeRefreshLayout
+     */
+    private void setUpSwipeRefreshView(final SwipeRefreshLayout swipeView) {
         final int padding = (int) (50 * getResources().getDisplayMetrics().density);
         // Progressbar should be under actionbar
         swipeView.setProgressViewOffset(true, padding, (int) (padding * 1.5));
@@ -341,7 +294,6 @@ public class MainActivity extends LanguageChangableActivity
             @Override
             public void onRefresh() {
                 swipeView.setRefreshing(true);
-                Log.d("Swipview", "Got refresh action + adapter: ");
 
                 Helper.clearDayCache();
 
@@ -385,7 +337,6 @@ public class MainActivity extends LanguageChangableActivity
             }
         });
 
-        selectedMensa = MensaManager.getFavoritesMensa();
     }
 
 
@@ -469,7 +420,7 @@ public class MainActivity extends LanguageChangableActivity
 
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -481,17 +432,23 @@ public class MainActivity extends LanguageChangableActivity
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         } else if(id == R.id.action_share_mensa_to_poll) {
-            MensaManager.getPollManagger(getApplicationContext()).addMensaToPoll(selectedMensa, Mensa.Weekday.of(MensaManager.SELECTED_DAY), MensaManager.MEAL_TYPE, MainActivity.this, new Function1<String, Void>() {
-                @Override
-                public Void invoke(String s) {
-                    // TODO
-                    return null;
-                }
+            // Show Poll selection window and add all icons to poll
+            MensaManager
+                    .getPollManagger(getApplicationContext())
+                    .addMensaToPoll(selectedMensa, Mensa.Weekday.of(MensaManager.SELECTED_DAY), MensaManager.MEAL_TYPE, MainActivity.this, new Function2<String,Boolean,  Void>() {
+                        @Override
+                        public Void invoke(String s, Boolean error) {
+                            if(error) {
+                                Snackbar.make(findViewById(android.R.id.content), s, Snackbar.LENGTH_LONG).show();
+                                return null;
+                            }
+                            Snackbar.make(findViewById(android.R.id.content), getApplicationContext().getString(R.string.added_menu_to_poll), Snackbar.LENGTH_LONG).show();
+                            return null;
+                        }
             });
         } else if (id == R.id.action_share_mensa_to_device) {
-
             if (selectedMensa == null) {
-                Log.e("MainACtivity-itemSel", "Mensa wasn null");
+                Log.e("MainACtivity-itemSel", "Mensa was null");
             } else {
                 // Start share action
                 Intent i = new Intent(android.content.Intent.ACTION_SEND);
@@ -500,17 +457,15 @@ public class MainActivity extends LanguageChangableActivity
                     Mensa.Weekday day = Mensa.Weekday.of(MensaManager.SELECTED_DAY);
                     i.putExtra(android.content.Intent.EXTRA_TEXT, selectedMensa.getAsSharableString(day, Helper.firstNonNull(mainViewpagerAdapter.getSelectedMealType(selectedMensa.getUniqueId()), MensaManager.MEAL_TYPE)));
                 }
-                startActivity(Intent.createChooser(i, "Share"));
+                startActivity(Intent.createChooser(i, getApplicationContext().getString(R.string.share)));
             }
         } else if(id == R.id.menu_only_vegi) {
-
             item.setChecked(!item.isChecked());
             MensaManager.updateMenuFilter(item.isChecked(), getBaseContext());
-        } else if(id == R.id.action_share_poll) {
 
+        } else if(id == R.id.action_open_polls) {
             Intent intent = new Intent(this, PollListActivity.class);
             startActivity(intent);
-            //sharePoll();
         }
 
         return super.onOptionsItemSelected(item);
@@ -577,14 +532,8 @@ public class MainActivity extends LanguageChangableActivity
         else
             Log.e("MainActivity.selectM", "Position : " + pos + " is not stored in veiwpager");
 
-        onMensaSelected();
     }
 
-
-
-    private void onMensaSelected() {
-        // Not needed
-    }
 
     /**
      *
@@ -614,7 +563,6 @@ public class MainActivity extends LanguageChangableActivity
         return expandableListAdapter.getPositionForMensaId(mensaId);
     }
 
-
     /**
      * Adapter for the main viewpager containing all mensas
      */
@@ -623,7 +571,6 @@ public class MainActivity extends LanguageChangableActivity
         private final Map<Integer, MensaOverviewFragment> positionToFragment;
 
 
-        @SuppressLint("UseSparseArrays")
         MainViewpagerAdapter(@NonNull FragmentManager fm) {
             super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
             positionToFragment = new HashMap<>();

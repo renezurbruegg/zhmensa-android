@@ -21,6 +21,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.mensa.zhmensa.activities.LanguageChangableActivity;
 import com.mensa.zhmensa.models.Mensa;
 import com.mensa.zhmensa.models.menu.IMenu;
 import com.mensa.zhmensa.models.poll.Poll;
@@ -28,10 +29,12 @@ import com.mensa.zhmensa.services.Helper;
 import com.mensa.zhmensa.services.MensaManager;
 import com.mensa.zhmensa.services.PollManager;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 
 /**
  * An activity representing a list of pollOption. This activity
@@ -41,7 +44,7 @@ import kotlin.jvm.functions.Function1;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class PollListActivity extends AppCompatActivity implements PollManager.OnPollListChangeListener {
+public class PollListActivity extends LanguageChangableActivity implements PollManager.OnPollListChangeListener {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -69,9 +72,15 @@ public class PollListActivity extends AppCompatActivity implements PollManager.O
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                pollManager.showCreateNewPollDialog(Collections.<IMenu>emptyList(), "", PollListActivity.this, MensaManager.MEAL_TYPE, Mensa.Weekday.of(MensaManager.SELECTED_DAY));
-                //pollManager.createNewDummyPoll(PollListActivity.this);
+            public void onClick(final View view) {
+                pollManager.showCreateNewPollDialog(Collections.<IMenu>emptyList(), "", PollListActivity.this, MensaManager.MEAL_TYPE, Mensa.Weekday.of(MensaManager.SELECTED_DAY), new Function2<String, Boolean, Void>() {
+                    @Override
+                    public Void invoke(String s, Boolean error) {
+                        if(error)
+                            Snackbar.make(view, s, Snackbar.LENGTH_LONG).show();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -112,10 +121,12 @@ public class PollListActivity extends AppCompatActivity implements PollManager.O
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
 
-
-
-
+        getSupportActionBar().setTitle(getBaseContext().getString(R.string.title_poll_list));
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -135,14 +146,17 @@ public class PollListActivity extends AppCompatActivity implements PollManager.O
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, pollManager.getActivePolls(getApplicationContext()), mTwoPane, getApplicationContext()));
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, pollManager.getActivePolls(getBaseContext()), mTwoPane, getBaseContext()));
     }
 
     @Override
     public void onPollListChanged(List<Poll> pollList) {
+        Log.d("changed", "Poll list chagned");
+        Log.d("list: ", pollList.toString());
+
         if(recyclerView != null)
             recyclerView.getAdapter().notifyDataSetChanged();
-            //recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, pollManager.getActivePolls(getApplicationContext()), mTwoPane, getApplicationContext()));
+            //recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, pollList, mTwoPane, getApplicationContext()));
     }
 
     @Override
@@ -152,10 +166,6 @@ public class PollListActivity extends AppCompatActivity implements PollManager.O
 
     }
 
-    @Override
-    public void onPollDeleted(Poll poll) {
-
-    }
 
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
@@ -194,6 +204,8 @@ public class PollListActivity extends AppCompatActivity implements PollManager.O
             mParentActivity = parent;
             mTwoPane = twoPane;
             this.ctx = ctx;
+
+            Log.d("test::::", ctx.getString(R.string.favorites_title));
         }
 
         @Override
@@ -242,6 +254,8 @@ public class PollListActivity extends AppCompatActivity implements PollManager.O
             }
         }
     }
+
+
 
 
 

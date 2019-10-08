@@ -33,7 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import cz.msebera.android.httpclient.Header;
 
-
+@Deprecated
 public class UzhMensaCategory extends MensaCategory {
 
     private static final String PLATTE = "Platte";

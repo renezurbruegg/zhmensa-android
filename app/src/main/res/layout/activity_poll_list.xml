@@ -27,6 +27,7 @@
         android:orientation="vertical"
         android:id="@+id/poll_list_refresh_layout">
     <FrameLayout
+        android:paddingTop="?attr/actionBarSize"
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -42,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:srcCompat="@drawable/ic_add_black_24dp" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

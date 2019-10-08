@@ -26,12 +26,26 @@ public class MensaListObservable extends Observable implements Serializable {
         return newItems;
     }
 
+
+    @Deprecated
     public final Mensa.Weekday day;
+
+    @Deprecated
     public final Mensa.MenuCategory mealType;
 
+    public boolean apiMensaLoaded = false;
+
+    public MensaListObservable() {
+        this.day = null;
+        this.mealType = null;
+        this.apiMensaLoaded = true;
+        // this.mealType = mealType;
+    }
+
+    @Deprecated
     public MensaListObservable(Mensa.Weekday day, Mensa.MenuCategory mealType) {
-        this.day = day;
-        this.mealType = mealType;
+       this.day = day;
+       this.mealType = mealType;
     }
 
     @SuppressWarnings("unused")

@@ -32,11 +32,11 @@
 
             <item
                 android:id="@+id/action_share_mensa_to_poll"
-                android:title="Alle Menüs zur Umfrage hinzufügen" />
+                android:title="@string/add_menus_to_poll" />
 
             <item
                 android:id="@+id/action_share_mensa_to_device"
-                android:title="Alle Menüs Teilen" />
+                android:title="@string/share_all_menu" />
 
         </menu>
     </item>
@@ -49,9 +49,9 @@
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_refresh_black_24dp" /> -->
     <item
-        android:id="@+id/action_share_poll"
+        android:id="@+id/action_open_polls"
         android:orderInCategory="95"
-        android:title="Umfragen"
+        android:title="@string/poll"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_settings"

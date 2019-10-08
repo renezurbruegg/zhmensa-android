@@ -45,8 +45,8 @@
             tools:layout_constraintEnd_toStartOf="@+id/hide_poll"
             tools:layout_constraintTop_toTopOf="parent" />
 
-
         <ImageButton
+
             android:id="@+id/hide_poll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -56,11 +56,11 @@
             android:layout_marginBottom="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             tools:layout_constraintBottom_toBottomOf="parent"
-            tools:layout_constraintEnd_toStartOf="@+id/share_poll"
+            tools:layout_constraintEnd_toEndOf="parent"
             tools:layout_constraintTop_toTopOf="parent"
             tools:srcCompat="@drawable/ic_delete_black_24dp" />
 
-
+<!--
         <ImageButton
             android:id="@+id/share_poll"
             android:layout_width="wrap_content"
@@ -74,7 +74,7 @@
             tools:layout_constraintBottom_toBottomOf="parent"
             tools:layout_constraintEnd_toEndOf="parent"
             tools:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@drawable/ic_share_black_24dp" />
+            tools:srcCompat="@drawable/ic_share_black_24dp" /> -->
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>

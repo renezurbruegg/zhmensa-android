@@ -146,7 +146,7 @@ public class Mensa implements Comparable<Mensa> {
     }
 
 
-    public Set<MenuCategory> getAvaiableCategoriesForDay(Weekday day) {
+    public @NonNull Set<MenuCategory> getAvaiableCategoriesForDay(Weekday day) {
         return firstNonNull(meals.get(day), Collections.<MenuCategory, Set<IMenu>>emptyMap()).keySet();
     }
 
@@ -209,9 +209,9 @@ public class Mensa implements Comparable<Mensa> {
 
         public static MenuCategory from(String label) {
             Log.d("mcf",label);
-            if(label.equalsIgnoreCase("LUNCH"))
+            if(label.equalsIgnoreCase("LUNCH") || label.equalsIgnoreCase("Mittagessen"))
                 return LUNCH;
-            if(label.equalsIgnoreCase("DINNER"))
+            if(label.equalsIgnoreCase("DINNER") || label.equalsIgnoreCase("Abendessen"))
                 return DINNER;
             return ALL_DAY;
         }

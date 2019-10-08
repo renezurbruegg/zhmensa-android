@@ -6,10 +6,12 @@ import android.util.Log;
 import com.mensa.zhmensa.filters.MenuFilter;
 import com.mensa.zhmensa.filters.MenuIdFilter;
 import com.mensa.zhmensa.models.Mensa;
-import com.mensa.zhmensa.models.categories.MensaCategory;
 import com.mensa.zhmensa.models.menu.IMenu;
 import com.mensa.zhmensa.services.Helper;
 import com.mensa.zhmensa.services.MensaManager;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,60 +52,31 @@ public class Poll {
 
     public int votes;
 
-    public Mensa.Weekday weekday = Mensa.Weekday.MONDAY;
-    public Mensa.MenuCategory menuCategory = Mensa.MenuCategory.LUNCH;
+    public Mensa.Weekday weekday;
+    public Mensa.MenuCategory menuCategory;
 
 
     public List<PollOption> pollOption = new ArrayList<>();
 
+    public DateTime creationDate;
 
-
-    private transient List<PollOption> menuItems;
-
-    public Poll(String label, String id, Mensa.MenuCategory menuCategory, Mensa.Weekday weekday) {
+    public Poll(String label, String id, Mensa.MenuCategory menuCategory, Mensa.Weekday weekday, String creationTime) {
         this.label = label;
         this.menuCategory = menuCategory;
         this.id = id;
         this.weekday = weekday;
+        if(creationTime == null)
+            this.creationDate = DateTime.now();
+        else
+            this.creationDate = DateTimeFormat.forPattern("yyyy-MM-dd").parseDateTime(creationTime);
     }
+
 
 
     public List<PollOption> getOptions() {
         return pollOption;
     }
-/*
-    public List<PollOption> getMenuList() {
 
-        if(menuItems == null || menuItems.isEmpty()) {
-            menuItems = new ArrayList<>();
-
-            for (MenuIdentifier id : menuIds) {
-                MenuFilter filter = new MenuIdFilter(id.menuId);
-
-                IMenu menu = MensaManager.getFirstMenuForFiter(id.mensaName, menuCategory, weekday, filter);
-                if(menu == null) {
-                    Log.e("Poll", "Could not find menu for infos: " + id.mensaName + " - " + id.menuId +" - cat " + menuCategory + " - day " + weekday);
-                } else {
-                    Mensa m = MensaManager.getMensaForId(id.mensaName);
-                    if(m == null) {
-                        Log.e("getMenuList", "Could not find Mensa for id: " + id.mensaName);
-                    } else {
-                        menuItems.add(new PollOption(id,));
-                    }
-                }
-            }
-        }
-
-        return menuItems;
-    }
-/*
-    public void addNewOption(IMenu menu, String mensaId, int votes) {
-        MenuIdentifier id = new MenuIdentifier(menu, mensaId);
-
-        menuIds.add(new Pair(mensaId, menu.getId()));
-        if(menuItems != null)
-            menuItems.clear();
-    } */
 
     public void addNewOption(String menuId, String mensaId, int votes, Context ctx) {
         MenuIdentifier id = new MenuIdentifier(menuId, mensaId);

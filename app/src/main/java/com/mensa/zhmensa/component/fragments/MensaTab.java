@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,15 +26,12 @@ import com.mensa.zhmensa.adapters.TabAdapter;
 import com.mensa.zhmensa.models.Mensa;
 import com.mensa.zhmensa.models.MensaUpdateModel;
 import com.mensa.zhmensa.models.menu.IMenu;
-import com.mensa.zhmensa.services.Helper;
 import com.mensa.zhmensa.services.MensaManager;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.zip.Inflater;
 
 
 /**
@@ -214,7 +210,7 @@ public class MensaTab {
             String mensaId = getArguments().getString(MENSA_ID);
             String weekdayStr = getArguments().getString(WEEKDAY);
 
-            if(mensa == null)
+            if(mensa == null || getArguments() == null)
                 return false;
 
             Set<Mensa.MenuCategory> categorySet = mensa.getAvaiableCategoriesForDay(day);
@@ -222,7 +218,12 @@ public class MensaTab {
             loadedCategories = 0;
 
             if (categorySet.isEmpty()) {
-                rootView.findViewById(R.id.viewpager_weekday_content).setVisibility(View.GONE);
+                View vp = rootView.findViewById(R.id.viewpager_weekday_content);
+
+                if(vp == null)
+                    return false;
+
+                vp.setVisibility(View.GONE);
                 rootView.findViewById(R.id.appBarLayout2).setVisibility(View.GONE);
                 rootView.findViewById(R.id.fragment_placeholder).setVisibility(View.VISIBLE);
 
@@ -279,7 +280,7 @@ public class MensaTab {
             Log.d("onResumeMensaTab", "On Resume called in mensa tab " + getArguments().getString(MENSA_ID));
         }
 
-        public void notifyDatasetChanged() {
+        void notifyDatasetChanged() {
             if(mensa != null && day != null && loadedCategories == mensa.getAvaiableCategoriesForDay(day).size()) {
 
             } else {
@@ -416,7 +417,7 @@ public class MensaTab {
             model.getUpdatedMensaId().observe(this, this);
         }
 
-        public void notifyDatasetChanged() {
+        void notifyDatasetChanged() {
             if (menuList != null) {
                 Log.d("MenTabContentFrag", "notifyDatasetChanged() going to rebuild set. Mensa:" + mensaId + " day: " + weekday);
                 menuList.clear();

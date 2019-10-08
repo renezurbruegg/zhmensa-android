@@ -1,7 +1,6 @@
 package com.mensa.zhmensa.activities;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,7 +15,6 @@ public abstract class LanguageChangableActivity extends AppCompatActivity {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(new LocaleManager(base).setLocale(base));
-        Log.d("", "attachBaseContext");
     }
 
 }

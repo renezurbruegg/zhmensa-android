@@ -35,5 +35,32 @@
     <string name="clear_all">Clear all stored mensas</string>
     <string name="action_set_filter">Filter</string>
     <string name="only_show_vegi">Only show vegi</string>
+    <string name="all_day">All Day</string>
+    <string name="friday_full">Friday</string>
+    <string name="monday_full">Monday</string>
+    <string name="thursday_full">Thursday</string>
+    <string name="wednesday_full">Wednesday</string>
+    <string name="title_poll_list">Polls</string>
+    <string name="tuesday_full">Tuesday</string>
+    <string name="error_internet_conn">Please check your internet connection</string>
+    <string name="err_add_options">Could not add Menus to poll</string>
+    <string name="error_create_poll">Could not create new Poll</string>
+    <string name="poll_from">Poll of %s</string>
+    <string name="mensa_not_defined">Selected Mensa is not defined</string>
+    <string name="share">Share</string>
+    <string name="poll">Polls</string>
+    <string name="add_menus_to_poll">Add all visible menus to Poll</string>
+    <string name="add_to_poll">Add to Poll</string>
+    <string name="added_menu">Menu added</string>
+    <string name="cancel">Cancel</string>
+    <string name="added_menu_to_poll">Added menus to poll</string>
+    <string name="create_new_poll">Create new poll</string>
+    <string name="error_add_menus">Could not add Menus to poll</string>
+    <string name="no_menu_avaiable">No menus avaiable.\n Use the \'share\' function to add a menu to this poll\n</string>
+    <string name="select">Select</string>
+    <string name="share_all_menu">Share visible menus</string>
+    <string name="survey_share_heade">Poll\nTitle:</string>
+    <string name="title_poll_detail">poll details</string>
+    <string name="update_successfully">Updated Successfully</string>
 
 </resources>

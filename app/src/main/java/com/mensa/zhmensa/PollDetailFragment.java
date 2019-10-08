@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,12 +19,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.mensa.zhmensa.component.PollOptionViewHolder;
-import com.mensa.zhmensa.models.Mensa;
-import com.mensa.zhmensa.models.MensaUpdateModel;
 import com.mensa.zhmensa.models.PollOptionChangedModel;
 import com.mensa.zhmensa.models.poll.Poll;
+import com.mensa.zhmensa.services.Helper;
 import com.mensa.zhmensa.services.MensaManager;
-import com.mensa.zhmensa.services.PollManager;
 
 import java.util.List;
 
@@ -48,7 +47,9 @@ public class PollDetailFragment extends Fragment implements Poll.PollOptionChang
     private Poll mPoll;
 
     private RecyclerView mRecyclerView;
-
+    private CollapsingToolbarLayout appBarLayout;
+    private TextView weekdayTextView;
+    private TextView votesTextView;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -67,7 +68,7 @@ public class PollDetailFragment extends Fragment implements Poll.PollOptionChang
             mPoll = MensaManager.getPollManagger(getContext()).getPollForId(getArguments().getString(ARG_ITEM_ID));
 
             Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
+            appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
                 appBarLayout.setTitle(mPoll.label);
             }
@@ -77,9 +78,12 @@ public class PollDetailFragment extends Fragment implements Poll.PollOptionChang
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mRecyclerView = view.findViewById(R.id.poll_detail_recycler);
+
+        weekdayTextView =  view.findViewById(R.id.poll_detail_weekday);
+        votesTextView =  view.findViewById(R.id.poll_detail_votes);
 
         final SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.refresh_layout_poll);
 
@@ -92,9 +96,23 @@ public class PollDetailFragment extends Fragment implements Poll.PollOptionChang
                     public Void invoke(List<Poll> pollList) {
                         mPoll = MensaManager.getPollManagger(getContext()).getPollForId(getArguments().getString(ARG_ITEM_ID));
 
+                        if(mPoll == null)
+                            return null;
+
                         if(mRecyclerView != null) {
                             mRecyclerView.setAdapter(new PollCardAdapter(mPoll, PollDetailFragment.this));
                         }
+                        if (appBarLayout != null) {
+                            appBarLayout.setTitle(mPoll.label);
+                        }
+                        if(votesTextView != null) {
+                            votesTextView.setText("Stimmen: " + mPoll.votes);
+                        }
+                        if(weekdayTextView != null) {
+                            weekdayTextView.setText(Helper.getFullNameForDay(mPoll.weekday, getContext()));
+                        }
+
+
                         swipeRefreshLayout.setRefreshing(false);
                         return null;
                     }
@@ -106,11 +124,17 @@ public class PollDetailFragment extends Fragment implements Poll.PollOptionChang
         // Show the dummy content as text in a TextView.
         if (mPoll != null) {
             mRecyclerView.setAdapter(new PollCardAdapter(mPoll, this));
+
+            if(votesTextView != null) {
+                votesTextView.setText("Stimmen: " + mPoll.votes);
+            }
+            if(weekdayTextView != null) {
+                weekdayTextView.setText(Helper.getFullNameForDay(mPoll.weekday, getContext()));
+            }
            // mRecyclerView.getAdapter().notifyDataSetChanged();
           //  mRecyclerView.getLayoutManager().setAutoMeasureEnabled(true);
             //((TextView) rootView.findViewById(R.id.poll_detail)).setText(mPoll.label);
         }
-        Mensa mensa = MensaManager.getFavoritesMensa();
 
         //mRecyclerView.setAdapter(new MenuCardAdapter(mensa.getMenusForDayAndCategory(Mensa.Weekday.MONDAY, Mensa.MenuCategory.LUNCH), mensa.getUniqueId(), MensaManager.getMenuFilter(getContext()), getContext()));
         //Toast.makeText(getContext(), "it: " + mRecyclerView.getAdapter().getItemCount() ,Toast.LENGTH_LONG).show();
@@ -129,6 +153,16 @@ public class PollDetailFragment extends Fragment implements Poll.PollOptionChang
     public void onPollOptionChanged(Poll.PollOption poll) {
         PollOptionChangedModel model = ViewModelProviders.of(getActivity()).get(PollOptionChangedModel.class);
         model.pushUpdate(poll);
+        if (appBarLayout != null) {
+            appBarLayout.setTitle(mPoll.label);
+        }
+        if(votesTextView != null) {
+            votesTextView.setText("Stimmen: " + mPoll.votes);
+        }
+        if(weekdayTextView != null) {
+            weekdayTextView.setText(Helper.getFullNameForDay(mPoll.weekday, getContext()));
+        }
+
     }
 
 
@@ -179,5 +213,7 @@ public class PollDetailFragment extends Fragment implements Poll.PollOptionChang
 
 
     }
+
+
 
 }

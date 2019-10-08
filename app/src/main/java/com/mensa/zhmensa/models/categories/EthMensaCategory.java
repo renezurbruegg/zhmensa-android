@@ -27,6 +27,7 @@ import cz.msebera.android.httpclient.Header;
 
 
 @SuppressWarnings("HardCodedStringLiteral")
+@Deprecated
 public class EthMensaCategory extends MensaCategory {
      // e.g. https://www.webservices.ethz.ch/gastro/v1/RVRI/Q1E1/meals/de/2019-07-05/lunch
     private static final String apiRoute = "https://www.webservices.ethz.ch/gastro/v1/RVRI/Q1E1/meals/";

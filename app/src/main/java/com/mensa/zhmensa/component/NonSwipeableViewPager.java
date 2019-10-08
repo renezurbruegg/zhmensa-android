@@ -1,6 +1,5 @@
 package com.mensa.zhmensa.component;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -33,7 +32,6 @@ public class NonSwipeableViewPager extends ViewPager {
         return false;
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // Never allow swiping to switch between pages

@@ -2,14 +2,12 @@ package com.mensa.zhmensa.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -20,8 +18,6 @@ import com.mensa.zhmensa.models.Mensa;
 import com.mensa.zhmensa.services.Helper;
 import com.mensa.zhmensa.services.MensaManager;
 
-import org.joda.time.DateTime;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,10 +27,10 @@ import java.util.List;
 public class TabAdapter extends FragmentStatePagerAdapter {
 
 
-    @SuppressWarnings("HardCodedStringLiteral")
-    private static final String MENSA_ID = "mensaId";
+
+    //private static final String MENSA_ID = "mensaId";
     private final List<MensaTab.MenuTabContentFragment> mFragmentList = new ArrayList<>();
-    private final List<String> mFragmentTitleList = new ArrayList<>();
+    //private final List<String> mFragmentTitleList = new ArrayList<>();
     private final List<Pair<Mensa.MenuCategory, String>> posToLabels = new ArrayList<>();
     private final List<Mensa.MenuCategory> catList = new ArrayList<>();
     public TabAdapter(@NonNull FragmentManager fm) {
@@ -49,7 +45,7 @@ public class TabAdapter extends FragmentStatePagerAdapter {
 
     public void addFragment(MensaTab.MenuTabContentFragment fragment, Mensa.MenuCategory category, String mensaId, Context ctx) {
         mFragmentList.add(fragment);
-        mFragmentTitleList.add(Helper.getLabelForMealType(category, ctx));
+        //mFragmentTitleList.add(Helper.getLabelForMealType(category, ctx));
         posToLabels.add(new Pair(category, mensaId));
         catList.add(category);
     }
@@ -78,13 +74,6 @@ public class TabAdapter extends FragmentStatePagerAdapter {
         return view;
     }
 
-    /*
-    @Nullable
-    @Override
-    public CharSequence getPageTitle(int position) {
-        return mFragmentTitleList.get(position);
-    }
-*/
     @Override
     public int
     getCount() {

@@ -9,6 +9,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.mensa.zhmensa.R;
 import com.mensa.zhmensa.models.Mensa;
 import com.mensa.zhmensa.models.poll.Poll;
 
@@ -18,29 +19,42 @@ import java.util.Collection;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
-import kotlin.Function;
 import kotlin.jvm.functions.Function1;
 
-@SuppressWarnings("HardCodedStringLiteral")
-public class PollApi {
+/**
+ * Helper Function that performs calls to the mensazurich.ch Poll API
+ */
+class PollApi {
       private static final String BASE_URL = "http://mensazh.vsos.ethz.ch:8080/api/polls";
       private static final String CREATE = "/create";
 
 
-    public static class PollApiResponse {
-          public final boolean error;
-          public final String msg;
-          public final Throwable throwable;
+    /**
+     * POJO to provide information about a Server response
+     */
+    static class PollApiResponse {
+          final boolean error;
+          final String msg;
+          // Null if there was no error
+          final Throwable throwable;
 
-          public PollApiResponse(boolean error, String msg, Throwable throwable) {
+          PollApiResponse(boolean error, String msg, Throwable throwable) {
               this.error = error;
               this.msg = msg;
               this.throwable = throwable;
           }
+
+        PollApiResponse(String msg) {
+              this(false, msg, null);
+        }
       }
 
 
-
+    /**
+     * Converts a Poll Object to a JsonObject that can be sent to the Server as payload
+     * @param poll
+     * @return
+     */
       private static JsonObject convertPollToJsonObj(Poll poll) {
           JsonObject payload = new JsonObject();
           payload.addProperty("title", poll.label);
@@ -60,7 +74,13 @@ public class PollApi {
           return payload;
       }
 
-      public static void updatePoll(Poll poll, final Function1<PollApiResponse, Void> callback, Context ctx) {
+    /**
+     * Updates a given poll on the Server
+     * @param poll
+     * @param callback
+     * @param ctx
+     */
+      static void updatePoll(Poll poll, final Function1<PollApiResponse, Void> callback, final Context ctx) {
           JsonObject payload = convertPollToJsonObj(poll);
 
           Log.d("updatePoll", payload.toString());
@@ -69,26 +89,25 @@ public class PollApi {
               HttpUtils.post(BASE_URL + "/update/" + poll.id, payload, ctx,  new AsyncHttpResponseHandler() {
                   @Override
                   public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                      String jsonString = new String(responseBody);
-                      Log.e("update poll", jsonString);
-
-                      callback.invoke(new PollApiResponse(false, "success", null));
-                      Log.e("sucesss.", "returned: " + new String(responseBody));
+                      callback.invoke(new PollApiResponse(ctx.getString(R.string.update_successfully)));
                   }
 
                   @Override
                   public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                      Log.e("error.", "returned: " + new String(responseBody));
-                      callback.invoke(new PollApiResponse(true, new String(responseBody), error));
+                      callback.invoke(new PollApiResponse(true, (responseBody == null ? "" : new String(responseBody)), error));
                   }
               });
           } catch (UnsupportedEncodingException e) {
-              callback.invoke(new PollApiResponse(true, "UnsupportedEncodingException", e));
+              callback.invoke(new PollApiResponse(true, "Unsupported Encoding", e));
           }
       }
 
-      // TODO add PollApiResponse Logic
-
+    /**
+     *  Adds a new Poll and returns the ID given by the server to the callback function
+     * @param poll
+     * @param callback
+     * @param ctx
+     */
       public static void addNewPollToApi(Poll poll, final Function1<JsonElement, Void> callback, Context ctx) {
 
           JsonObject payload = convertPollToJsonObj(poll);
@@ -99,17 +118,16 @@ public class PollApi {
                   public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                       String jsonString = new String(responseBody);
                       callback.invoke(new JsonParser().parse(jsonString));
-                      Log.e("sucesss.", "returned: " + new String(responseBody));
+
                   }
 
                   @Override
                   public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                      Log.e("error.", "returned: " + new String(responseBody));
                       callback.invoke(null);
                   }
               });
           } catch (UnsupportedEncodingException e) {
-              e.printStackTrace();
+             Log.e("addNewPollToApi", "UnsupportedEncodingException", e);
           }
       }
 
@@ -135,7 +153,7 @@ public class PollApi {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                         String jsonString = new String(responseBody);
-                        callback.invoke(new PollApiResponse(false, jsonString, null));
+                        callback.invoke(new PollApiResponse(jsonString));
                     }
 
                     @Override
@@ -145,46 +163,41 @@ public class PollApi {
                     }
                 });
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                Log.e("performVoteAction", "UnsupportedEncodingException", e);
             }
         }
-      public static void voteForPollOption(Context ctx, Poll poll, Poll.PollOption option, boolean firstVote, final Function1<PollApiResponse, Void> callback) {
+
+
+
+
+      static void voteForPollOption(Context ctx, Poll poll, Poll.PollOption option, boolean firstVote, final Function1<PollApiResponse, Void> callback) {
           performVoteAction(ctx, poll, option, firstVote, callback, false);
       }
 
+    /**
+     * Converts a JSON Object to a Poll Object
+     * @param json
+     * @param ctx
+     * @return
+     */
       private static Poll parseJsonEntryToPoll(JsonObject json, Context ctx) {
 
-          Poll poll =  new Poll(json.get("title").getAsString(), "id", Mensa.MenuCategory.from(json.get("mealType").getAsString()), Mensa.Weekday.of(json.get("weekday").getAsNumber().intValue()));
+          Poll poll =  new Poll(json.get("title").getAsString(), "id", Mensa.MenuCategory.from(json.get("mealType").getAsString()), Mensa.Weekday.of(json.get("weekday").getAsNumber().intValue()), json.get("creationdate").getAsString());
           poll.weekday = Mensa.Weekday.of(json.get("weekday").getAsNumber().intValue());
           poll.menuCategory = Mensa.MenuCategory.from(json.get("mealType").getAsString());
           poll.votes = json.get("votecount").getAsNumber().intValue();
           poll.id = json.get("id").getAsString();
-         // poll.id =
-
-        //  Mensa m = null;
 
           for(JsonElement pollElement : json.getAsJsonArray("options")) {
               JsonObject entry = pollElement.getAsJsonObject();
               String mensaId = entry.get("mensaId").getAsString();
               int votes = entry.get("votes").getAsNumber().intValue();
               poll.addNewOption(entry.get("menuId").getAsString(), mensaId, votes, ctx);
-
-
-           /*   if(m == null || !m.getUniqueId().equals(mensaId)) {
-                  m = MensaManager.getMensaForId(mensaId);
-              }
-
-              MenuFilter filter = new MenuIdFilter(entry.get("menuId").getAsString());
-              if(m != null) {
-                  Poll.PollOption option = new Poll.PollOption(MensaManager.getFirstMenuForFiter(mensaId, poll.menuCategory, poll.weekday, filter), mensaId);
-                  //TODO option.votes = entry.get("vote")
-
-              }*/
           }
-
 
           return poll;
       }
+
 
       private static List<Poll> parseToPollList(String jsonString, Context ctx) {
           JsonElement obj = new JsonParser().parse(jsonString);
@@ -203,7 +216,7 @@ public class PollApi {
       }
 
 
-    public static void getPollsForId(Collection<String> ids, final Context ctx, final Function1<List<Poll>, Void> callback) {
+    static void getPollsForId(Collection<String> ids, final Context ctx, final Function1<List<Poll>, Void> callback) {
 
         JsonObject payload = new JsonObject();
         JsonArray array = new JsonArray();
@@ -230,7 +243,7 @@ public class PollApi {
                 }
             });
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            Log.e("getPollsForId", "UnsupportedEncodingException", e);
     }
 }
 }

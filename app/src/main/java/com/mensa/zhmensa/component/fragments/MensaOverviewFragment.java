@@ -13,7 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
@@ -145,12 +144,10 @@ public class MensaOverviewFragment extends Fragment implements Observer<Object> 
      */
     public void notifyDatasetChanged() {
         Log.d("MensaOverViewFrag", " added? " + isAdded());
-        if (viewpager == null) {
+        if (viewpager != null) {
             Log.e("MensaOverview.ndc", "viewpager was null for mensa id: " + getMensaId());
-            return;
+            viewpager.getAdapter().notifyDataSetChanged();
         }
-
-       // viewpager.getAdapter().notifyDataSetChanged();
     }
 
 

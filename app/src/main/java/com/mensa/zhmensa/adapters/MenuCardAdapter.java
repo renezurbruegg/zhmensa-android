@@ -42,7 +42,6 @@ public class MenuCardAdapter extends RecyclerView.Adapter<MenuViewHolder> {
                 if(menuFilter == null || menuFilter.apply(menu))
                     this.menus.add(menu);
             }
-          //  this.menus.addAll(menus);
         }
 
         if (this.menus.size() == 0) {

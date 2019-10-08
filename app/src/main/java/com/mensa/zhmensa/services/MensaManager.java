@@ -19,6 +19,7 @@ import com.mensa.zhmensa.filters.MenuIdFilter;
 import com.mensa.zhmensa.models.FavoriteMensa;
 import com.mensa.zhmensa.models.Mensa;
 import com.mensa.zhmensa.models.MensaListObservable;
+import com.mensa.zhmensa.models.categories.ApiMensaCategory;
 import com.mensa.zhmensa.models.categories.EthMensaCategory;
 import com.mensa.zhmensa.models.categories.MensaCategory;
 import com.mensa.zhmensa.models.categories.UzhMensaCategory;
@@ -149,9 +150,22 @@ public class MensaManager {
 
     @SuppressWarnings("HardCodedStringLiteral")
     private static final MensaCategory UZH_ZENT = new UzhMensaCategory("UZH-Zentrum",Arrays.asList(UzhMensaCategory.UZH_MENSA_ZENTRUM), 3);
-    private static final MensaCategory[] categories = {ETH_ZENT, dummyHonggCat, UZH_ZENT , dummyUzhIrchel, dummyUzhOerl};
 
-    private static final MensaCategory[] LOADABLE_CAT = {ETH_ZENT, UZH_ZENT};
+
+    private static final MensaCategory[] categories = {
+            new ApiMensaCategory("Eth Zentrum", 1, "ETH-Zentrum", R.drawable.ic_eth_2),
+            new ApiMensaCategory("Eth Hönggerberg", 2, "ETH-Hönggerberg",R.drawable.ic_eth_2),
+            new ApiMensaCategory("UZH Zentrum", 3, "UZH-Zentrum", R.drawable.ic_uni),
+            new ApiMensaCategory("UZH Irchel", 4, "UZH-Irchel", R.drawable.ic_uni),
+            new ApiMensaCategory("Oerlikon", 5, "UZH-Oerlikon", R.drawable.ic_uni)
+    };
+
+    @Deprecated
+    private static final MensaCategory[] fallback_categories = {ETH_ZENT, dummyHonggCat, UZH_ZENT , dummyUzhIrchel, dummyUzhOerl};
+
+    private static final MensaCategory[] LOADABLE_CAT = categories;
+
+    private static final MensaCategory[] fallback_LOADABLE_CAT = {ETH_ZENT, UZH_ZENT};
 
     private static HiddenMenuFilter filter;
 
@@ -170,14 +184,50 @@ public class MensaManager {
 
 
 
-        /**
-         * Adds a new mensa for a given category, given day and given mealtype.
-         *
-         * @param mensas Mensa items to store
-         * @param category MenuCategory
-         * @param day
-         * @param mealType
-         */
+    private static void addNewApiMensaItem(List<Mensa> mensas, MensaCategory category){
+        boolean changedFav = false;
+
+        final long currentTime = Helper.getStartOfWeek().getMillis();
+
+
+        for (Mensa mensa : mensas) {
+
+            mensa.setLastUpdated(currentTime);
+
+
+            for(Mensa.Weekday day:Mensa.Weekday.values()) {
+                for(Mensa.MenuCategory mealType: Mensa.MenuCategory.values()){
+                    List<IMenu> newMenus = mensa.getMenusForDayAndCategory(day, mealType);
+
+                    putAndUpdate(mensa, day, mealType, newMenus);
+                    // Check if any item is a favorite Menu. If yes, add it to the favorite Mensa-
+
+                    for (IMenu menu : newMenus) {
+                        if (favoriteIds.contains(menu.getId())) {
+                            changedFav = true;
+                            Log.d("MensaManager-Observable", "Menu: " + menu.getName() + " will be added to the favorite Mensa");
+                            favoriteMensa.addMenu(mensa.getDisplayName(), mensa.getUniqueId(),day, mealType, menu);
+
+                        }
+                    }
+                }
+            }
+        }
+        if(changedFav) {
+            favoriteMensa.setLastUpdated(currentTime);
+            listener.onMensaUpdated(favoriteMensa);
+        }
+    }
+
+    /**
+     * Adds a new mensa for a given category, given day and given mealtype.
+     *
+     * @param mensas Mensa items to store
+     * @param category MenuCategory
+     * @param day
+     * @param mealType
+     */
+    @Deprecated
     private static void addNewMensaItem(List<Mensa> mensas, MensaCategory category, Mensa.Weekday day, Mensa.MenuCategory mealType, boolean loadedFromInternet) {
         boolean changedFav = false;
 
@@ -700,7 +750,9 @@ public class MensaManager {
     }
 
     public static Observable loadMensasForCategoryFromInternet(final MensaCategory category, Context ctx) {
+       // if(1==1)
 
+        // Reload favorite Mensa -> Trigger reload for all categories.
         if(category.getDisplayName().equals(favoriteMensa.getCategory().getDisplayName())){
             Log.d("MensaManager,loadfint", "Fav mensa to load");
             final OnLoadedObservable onLoadedObservable = new OnLoadedObservable(LOADABLE_CAT.length);
@@ -719,11 +771,11 @@ public class MensaManager {
             return onLoadedObservable;
         }
 
-
+/*
         final List<MensaListObservable> obs;
         if(category instanceof  EthMensaCategory) {
             Log.d("MensaManager,loadfint", "ETH category to load");
-            obs = ETH_ZENT.loadMensasFromAPI(Helper.getLanguageCode(ctx));
+            obs = categories[0].loadMensasFromAPI(Helper.getLanguageCode(ctx));
         } else if (category instanceof  UzhMensaCategory){
             obs = UZH_ZENT.loadMensasFromAPI(Helper.getLanguageCode(ctx));
             Log.d("MensaManager,loadfint", "UZH ZENT category to load");
@@ -731,6 +783,11 @@ public class MensaManager {
             // Fallback
             obs = ETH_ZENT.loadMensasFromAPI(Helper.getLanguageCode(ctx));
         }
+*/
+
+        // Simply reload the selected category
+        final List<MensaListObservable> obs =  category.loadMensasFromAPI(Helper.getLanguageCode(ctx));
+
 
         final OnLoadedObservable onLoadedObservable = new OnLoadedObservable(obs.size());
 
@@ -742,9 +799,14 @@ public class MensaManager {
             //        Log.d("MensaManager-Observable", "Got Updates for loadMensaFromAPI()");
                     category.setLastUpdated(Helper.getStartOfWeek().getMillis());
 
-
-                    // Add every new mensa to the mensa mapping. This will notify all listeners and they will appear in the sidebar.
-                    addNewMensaItem(observable.getNewItems(), category, observable.day, observable.mealType, true);
+                    if(observable.apiMensaLoaded) {
+                        // If we have the new API. All Days and mealtypes will be loaded if the observer is triggered
+                        addNewApiMensaItem(observable.getNewItems(), category);
+                    } else {
+                        // Add every new mensa to the mensa mapping. This will notify all listeners and they will appear in the sidebar.
+                        // In case that we used the old api, we only loaded a specific day and mealtype
+                        addNewMensaItem(observable.getNewItems(), category, observable.day, observable.mealType, true);
+                    }
 
                     onLoadedObservable.loadingFinished();
                 }

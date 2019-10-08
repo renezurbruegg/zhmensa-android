@@ -40,9 +40,9 @@ public class PollOptionViewHolder extends RecyclerView.ViewHolder {
 
 
 
-        ((TextView) viewHolder.itemView.findViewById(R.id.card_title)).setVisibility(View.VISIBLE);
-        ((TextView) viewHolder.itemView.findViewById(R.id.price_text)).setVisibility(View.VISIBLE);
-        ((TextView) viewHolder.itemView.findViewById(R.id.card_content)).setVisibility(View.VISIBLE);
+        ( viewHolder.itemView.findViewById(R.id.card_title)).setVisibility(View.VISIBLE);
+        ( viewHolder.itemView.findViewById(R.id.price_text)).setVisibility(View.VISIBLE);
+        ( viewHolder.itemView.findViewById(R.id.card_content)).setVisibility(View.VISIBLE);
         viewHolder.itemView.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
         viewHolder.itemView.findViewById(R.id.imageButton).setVisibility(View.VISIBLE);
 
@@ -53,7 +53,7 @@ public class PollOptionViewHolder extends RecyclerView.ViewHolder {
         ((TextView) viewHolder.itemView.findViewById(R.id.allergene)).setText(menu.getAllergene(ctx));
 
 
-        final LinearLayout showMoreLayout = viewHolder.itemView.findViewById(R.id.showmore_layout);
+        //final LinearLayout showMoreLayout = viewHolder.itemView.findViewById(R.id.showmore_layout);
         final TextView vegiView =  viewHolder.itemView.findViewById(R.id.vegi_badge);
 
         final ProgressBar pb = viewHolder.itemView.findViewById(R.id.progressBar);
@@ -126,10 +126,9 @@ public class PollOptionViewHolder extends RecyclerView.ViewHolder {
     }
 
     public static void bindDummy(Context context, PollOptionViewHolder viewHolder) {
-
-        ((TextView) viewHolder.itemView.findViewById(R.id.card_title)).setVisibility(View.GONE);
-        ((TextView) viewHolder.itemView.findViewById(R.id.price_text)).setVisibility(View.GONE);
-        ((TextView) viewHolder.itemView.findViewById(R.id.card_content)).setText("Noch Keine Menüs vorhanden. \n Benutze die \"Share\" funktion um ein Menü hinzuzufüügen \n");
+        ( viewHolder.itemView.findViewById(R.id.card_title)).setVisibility(View.GONE);
+        ( viewHolder.itemView.findViewById(R.id.price_text)).setVisibility(View.GONE);
+        ((TextView) viewHolder.itemView.findViewById(R.id.card_content)).setText(context.getString(R.string.no_menu_avaiable));
         viewHolder.itemView.findViewById(R.id.progressBar).setVisibility(View.GONE);
         viewHolder.itemView.findViewById(R.id.imageButton).setVisibility(View.GONE);
 

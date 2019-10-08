@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
 
+import org.jetbrains.annotations.NonNls;
+
 import java.lang.reflect.Field;
 
 /**
@@ -75,7 +77,7 @@ public class InterceptAllVerticalSwipesViewPager extends ViewPager {
 
     private void setMyScroller() {
         try {
-            Class<?> viewpager = ViewPager.class;
+            @NonNls Class<?> viewpager = ViewPager.class;
             Field scroller = viewpager.getDeclaredField("mScroller");
             scroller.setAccessible(true);
             scroller.set(this, new MyScroller(getContext()));

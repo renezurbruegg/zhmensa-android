@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
@@ -21,9 +20,9 @@ import com.mensa.zhmensa.models.menu.IMenu;
 import com.mensa.zhmensa.services.Helper;
 import com.mensa.zhmensa.services.MensaManager;
 
-import java.util.Arrays;
+import java.util.Collections;
 
-import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 
 /**
  * Simple implementation for a Mensa Menu view.
@@ -112,7 +111,7 @@ public class MenuViewHolder extends RecyclerView.ViewHolder {
         final PopupMenu dropDownMenu = new PopupMenu(ctx, shareBtn);
 
         final Menu ddMenu = dropDownMenu.getMenu();
-//
+
         dropDownMenu.getMenuInflater().inflate(R.menu.drop_down_share, ddMenu);
         dropDownMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
@@ -123,12 +122,10 @@ public class MenuViewHolder extends RecyclerView.ViewHolder {
                         Intent i = new Intent(android.content.Intent.ACTION_SEND);
                         i.setType("text/plain");
                         i.putExtra(android.content.Intent.EXTRA_TEXT, menu.getSharableString());
-                        ctx.startActivity(Intent.createChooser(i, "Share"));
+                        ctx.startActivity(Intent.createChooser(i, ctx.getString(R.string.share)));
                         return true;
 
                     case R.id.action_add_to_poll:
-
-                        Toast.makeText(ctx, "pressed", Toast.LENGTH_LONG).show();
 
                         String mMensaId = mensaId;
                         if(menu instanceof FavoriteMenu){
@@ -136,10 +133,14 @@ public class MenuViewHolder extends RecyclerView.ViewHolder {
                         }
 
 
-                        MensaManager.getPollManagger(ctx).showAddMenusToPollDialog(Arrays.asList(menu), mMensaId, ctx, new Function1<String, Void>() {
+                        MensaManager.getPollManagger(ctx).showAddMenusToPollDialog(Collections.singletonList(menu), mMensaId, ctx, new Function2<String, Boolean, Void>() {
                             @Override
-                            public Void invoke(String s) {
-                              Snackbar.make(viewHolder.itemView, "Menu hinzugefügt", Snackbar.LENGTH_SHORT).show();
+                            public Void invoke(String s, Boolean error) {
+                                if(error){
+                                    Snackbar.make(viewHolder.itemView, s, Snackbar.LENGTH_SHORT).show();
+                                    return null;
+                                }
+                              Snackbar.make(viewHolder.itemView, ctx.getString(R.string.added_menu), Snackbar.LENGTH_SHORT).show();
                               return null;
                             }
                         });

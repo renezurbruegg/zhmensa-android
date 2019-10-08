@@ -21,6 +21,7 @@ import com.mensa.zhmensa.models.menu.IMenu;
 import com.mensa.zhmensa.models.Mensa;
 import com.mensa.zhmensa.models.categories.MensaCategory;
 
+import org.jetbrains.annotations.NonNls;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.format.DateTimeFormat;
@@ -30,6 +31,7 @@ import org.json.JSONException;
 import java.lang.reflect.Type;
 import java.util.Locale;
 
+@NonNls
 @SuppressWarnings("unused")
 public class Helper {
 
@@ -120,7 +122,7 @@ public class Helper {
         return getDay(getStartOfWeek().plusDays(selectedDay), DateTimeFormat.forPattern("dd MMMM"));
     }
 
-    public static String getDayForPattern(int selectedDay, String pattern) {
+    public static String getDayForPattern(int selectedDay, @NonNls String pattern) {
         return getDay(getStartOfWeek().plusDays(selectedDay), DateTimeFormat.forPattern(pattern));
     }
 

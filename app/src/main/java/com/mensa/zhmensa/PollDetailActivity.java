@@ -1,6 +1,7 @@
 package com.mensa.zhmensa;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,14 +12,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.mensa.zhmensa.activities.LanguageChangableActivity;
 import com.mensa.zhmensa.models.PollOptionChangedModel;
+import com.mensa.zhmensa.models.categories.MensaCategory;
 import com.mensa.zhmensa.models.poll.Poll;
 import com.mensa.zhmensa.services.Helper;
 import com.mensa.zhmensa.services.MensaManager;
@@ -26,7 +27,10 @@ import com.mensa.zhmensa.services.MensaManager;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import kotlin.jvm.functions.Function1;
 
 /**
  * An activity representing a single poll detail screen. This
@@ -34,7 +38,7 @@ import java.util.Map;
  * item details are presented side-by-side with a list of items
  * in a {@link PollListActivity}.
  */
-public class PollDetailActivity extends AppCompatActivity implements Observer<Poll.PollOption> {
+public class PollDetailActivity extends LanguageChangableActivity implements Observer<Poll.PollOption> {
 
 
     private Map<Poll.PollOption, ProgressBar> pollOptionToPbMap = new HashMap<>();
@@ -43,15 +47,18 @@ public class PollDetailActivity extends AppCompatActivity implements Observer<Po
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poll_detail);
-      Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
-       setSupportActionBar(toolbar);
+        Toolbar toolbar =  findViewById(R.id.detail_toolbar);
+        setSupportActionBar(toolbar);
 
-      FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-      fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                Intent i = new Intent(android.content.Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(android.content.Intent.EXTRA_TEXT, getBaseContext().getString(R.string.survey_share_heade) + mPoll.label + "\nhttp://mensazurich.ch/poll/" + mPoll.id);
+                startActivity(Intent.createChooser(i, getBaseContext().getString(R.string.share)));
             }
         });
 
@@ -74,23 +81,77 @@ public class PollDetailActivity extends AppCompatActivity implements Observer<Po
         //
         // http://developer.android.com/guide/components/fragments.html
         //
+
+
+        // Get intent and check if we opened a Link in the app
+        Intent appLinkIntent = getIntent();
+
+        String appLinkAction = appLinkIntent.getAction();
+        Uri appLinkData = appLinkIntent.getData();
+
+        if(Intent.ACTION_VIEW.equals(appLinkAction) && appLinkData != null) {
+            // If Link opened -> Set ID as Poll ID
+            Log.d("lastpath", appLinkData.getLastPathSegment());
+            appLinkIntent.putExtra(PollDetailFragment.ARG_ITEM_ID, appLinkData.getLastPathSegment());
+            MensaManager.initManager(getApplicationContext());
+
+            for (MensaCategory category : MensaManager.getMensaCategories()) {
+                MensaManager.loadMensasForCategory(category, true, getApplicationContext());
+            }
+        }
+
+
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
-            Bundle arguments = new Bundle();
-            arguments.putString(PollDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(PollDetailFragment.ARG_ITEM_ID));
-            PollDetailFragment fragment = new PollDetailFragment();
-            fragment.setArguments(arguments);
 
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.poll_detail_container, fragment)
-                    .commit();
 
 
             mPoll = MensaManager.getPollManagger(getApplicationContext()).getPollForId(getIntent().getStringExtra(PollDetailFragment.ARG_ITEM_ID));
-            LinearLayout layout = findViewById(R.id.poll_sneek_peak_layout);
-            updateSneakPeakLayout(layout, mPoll);
+            if(mPoll != null) {
+                LinearLayout layout = findViewById(R.id.poll_sneek_peak_layout);
+                updateSneakPeakLayout(layout, mPoll);
+                Bundle arguments = new Bundle();
+                arguments.putString(PollDetailFragment.ARG_ITEM_ID,
+                        getIntent().getStringExtra(PollDetailFragment.ARG_ITEM_ID));
+                PollDetailFragment fragment = new PollDetailFragment();
+                fragment.setArguments(arguments);
+
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.poll_detail_container, fragment)
+                        .commit();
+
+            } else {
+                MensaManager.getPollManagger(getApplicationContext()).addPollId(getIntent().getStringExtra(PollDetailFragment.ARG_ITEM_ID), getApplicationContext());
+
+                MensaManager.getPollManagger(getApplicationContext()).reloadActivePollsWithCallback(getApplicationContext(), new Function1<List<Poll>, Void>() {
+                    @Override
+                    public Void invoke(List<Poll> pollList) {
+
+                        mPoll = MensaManager.getPollManagger(getApplicationContext()).getPollForId(getIntent().getStringExtra(PollDetailFragment.ARG_ITEM_ID));
+
+                        if(mPoll == null){
+                            //Probably invalid id
+                            Log.e("PollDetail", "Could not find poll with id: " + getIntent().getStringExtra(PollDetailFragment.ARG_ITEM_ID));
+                            return null;
+                        }
+                        LinearLayout layout = findViewById(R.id.poll_sneek_peak_layout);
+                        updateSneakPeakLayout(layout, mPoll);
+
+                        Bundle arguments = new Bundle();
+                        arguments.putString(PollDetailFragment.ARG_ITEM_ID,
+                                getIntent().getStringExtra(PollDetailFragment.ARG_ITEM_ID));
+                        PollDetailFragment fragment = new PollDetailFragment();
+                        fragment.setArguments(arguments);
+
+                        getSupportFragmentManager().beginTransaction()
+                                .add(R.id.poll_detail_container, fragment)
+                                .commit();
+
+                        return null;
+                    }
+                });
+            }
         }
 
 
@@ -156,16 +217,12 @@ public class PollDetailActivity extends AppCompatActivity implements Observer<Po
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            // This ID represents the Home or Up button. In the case of this
-            // activity, the Up button is shown. For
-            // more details, see the Navigation pattern on Android Design:
-            //
-            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-            //
             navigateUpTo(new Intent(this, PollListActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 
 }

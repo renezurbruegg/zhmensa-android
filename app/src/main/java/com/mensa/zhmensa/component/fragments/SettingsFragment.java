@@ -1,8 +1,6 @@
 package com.mensa.zhmensa.component.fragments;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -15,6 +13,9 @@ import com.mensa.zhmensa.services.MensaManager;
 
 import java.util.HashSet;
 
+/**
+ * Fragment that gets displayed in the Settings Activity
+ */
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     @SuppressWarnings("HardCodedStringLiteral")
@@ -53,7 +54,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         findPreference(LANGUAGE_PREFERENCE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                new LocaleManager(getContext()).setNewLocale(getContext(), newValue.toString());;
+                new LocaleManager(getContext()).setNewLocale(getContext(), newValue.toString());
                 getActivity().finish();
                 startActivity(getActivity().getIntent());
                 return true;

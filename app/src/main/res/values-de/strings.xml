@@ -16,7 +16,7 @@
     <string name="friday">Fr</string>
     <string name="week_of">Woche vom : %1$s </string>
     <string name="favorites_title">Favoriten</string>
-    <string name="error_download_mensas">Konnte Mensen nicht herunterladen. Bitte überorüfe deine Internetverbindung</string>
+    <string name="error_download_mensas">Konnte Mensen nicht herunterladen. Bitte überprüfe deine Internetverbindung</string>
     <string name="no_fav_msg">Keine Favoriten vorhanden</string>
     <string name="no_menu_msg">Momentan kein Menü verfügbar</string>
     <string name="allergens">Allergene:</string>
@@ -43,8 +43,51 @@
         <item>"en"</item>
         <item>"de"</item>
     </string-array>
+
+
+
+    <string-array name="mealTypes">
+        <item>Mittagessen</item>
+        <item>Abendessen</item>
+        <item>Ganzer Tag</item>
+    </string-array>
+
+    <string-array name="weekdays">
+        <item>Montag</item>
+        <item>Dienstag</item>
+        <item>Mittwoch</item>
+        <item>Donnerstag</item>
+        <item>Freitag</item>
+    </string-array>
     <string name="clear_cache">Cache löschen</string>
     <string name="clear_all">Alle gespeicherten Mensas löschen</string>
     <string name="action_set_filter">Filtern</string>
     <string name="only_show_vegi">Nur vegetarische Menus</string>
+    <string name="all_day">Ganztägig</string>
+    <string name="friday_full">Freitag</string>
+    <string name="monday_full">Montag</string>
+    <string name="thursday_full">Donnerstag</string>
+    <string name="wednesday_full">Mittwoch</string>
+    <string name="tuesday_full">Dienstag</string>
+    <string name="title_poll_list">Umfragen</string>
+    <string name="add_to_poll">Zur Umfrage hinzufügen</string>
+    <string name="select">Auswählen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="add_menus_to_poll">Alle Menüs zur Umfrage hinzufügen</string>
+    <string name="share_all_menu">Sichtbaren Menüs Teilen</string>
+    <string name="added_menu">Menu hinzugefügt</string>
+    <string name="no_menu_avaiable">Noch Keine Menüs vorhanden.\n  Benutze die \"Share\" funktion um ein Menü zur Umfrage hinzuzufügen\n</string>
+    <string name="update_successfully">Update erfolgreich</string>
+    <string name="survey_share_heade">Umfrage\nTitel:</string>
+    <string name="added_menu_to_poll">Menüs zur Umfrage hinzugefügt</string>
+    <string name="create_new_poll">Neue Umfrage erstellen</string>
+    <string name="err_add_options">Menüs konnten nicht hinzugefügt werden</string>
+    <string name="error_add_menus">Menüs konnten nicht hinzugefügt werden</string>
+    <string name="error_create_poll">Umfrage konnte nicht erstellt werden</string>
+    <string name="error_internet_conn">Bitte prüfen Sie ihre Internetverbindung</string>
+    <string name="mensa_not_defined">Ausgwählte mensa wurde nicht gefunden</string>
+    <string name="poll">Umfragen</string>
+    <string name="poll_from">Umfrage vom %s</string>
+    <string name="share">Teilen</string>
+    <string name="title_poll_detail">Details Umfrage</string>
 </resources>

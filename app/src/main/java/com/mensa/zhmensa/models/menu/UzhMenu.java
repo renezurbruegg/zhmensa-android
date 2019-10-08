@@ -10,7 +10,7 @@ import com.mensa.zhmensa.services.Helper;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
-
+@Deprecated
 public class UzhMenu extends Menu {
 
     private final Set<NutritionInfo> facts = new LinkedHashSet<>();
