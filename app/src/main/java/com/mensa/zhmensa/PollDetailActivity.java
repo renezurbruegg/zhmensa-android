@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,10 +21,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mensa.zhmensa.activities.LanguageChangableActivity;
 import com.mensa.zhmensa.models.PollOptionChangedModel;
 import com.mensa.zhmensa.models.categories.MensaCategory;
+import com.mensa.zhmensa.models.menu.IMenu;
 import com.mensa.zhmensa.models.poll.Poll;
 import com.mensa.zhmensa.services.Helper;
 import com.mensa.zhmensa.services.MensaManager;
+import com.mensa.zhmensa.services.PollManager;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -38,11 +42,16 @@ import kotlin.jvm.functions.Function1;
  * item details are presented side-by-side with a list of items
  * in a {@link PollListActivity}.
  */
-public class PollDetailActivity extends LanguageChangableActivity implements Observer<Poll.PollOption> {
+public class PollDetailActivity extends LanguageChangableActivity implements Observer<Poll.PollOption>, PollManager.OnPollListChangeListener {
 
 
-    private Map<Poll.PollOption, ProgressBar> pollOptionToPbMap = new HashMap<>();
     private Poll mPoll;
+
+
+    private final List<Pair<TextView, ProgressBar>> topPollOptions = new ArrayList<>();
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,16 +164,41 @@ public class PollDetailActivity extends LanguageChangableActivity implements Obs
         }
 
 
+        MensaManager.getPollManagger(getApplicationContext()).addListener(this);
+
     }
 
 
     @Override
     public void onChanged(Poll.PollOption pollOption) {
-        updateLayout();
-        ProgressBar pb = pollOptionToPbMap.get(pollOption);
-        updatePb(mPoll, pollOption, pb);
-    }
 
+        List<Poll.PollOption> pollOptions = new ArrayList<>(mPoll.getOptions());
+
+        Collections.sort(pollOptions, new Comparator<Poll.PollOption>() {
+            @Override
+            public int compare(Poll.PollOption pollOption, Poll.PollOption t1) {
+                return Integer.valueOf(t1.vote).compareTo(pollOption.vote);
+            }
+        });
+
+        for(int i = 0; (i < topPollOptions.size() && i < pollOptions.size()); i++) {
+            Pair<TextView, ProgressBar> sneakPeakEntry = topPollOptions.get(i);
+            Poll.PollOption option = pollOptions.get(i);
+            IMenu pollMenu = option.getPollMenu();
+
+            if(pollMenu != null) {
+                sneakPeakEntry.first.setText(pollMenu.getName());
+                updatePb(mPoll, option, sneakPeakEntry.second);
+            }
+
+        }
+
+
+
+       // ProgressBar pb = pollOptionToPbMap.get(pollOption);
+       // updatePb(mPoll, pollOption, pb);
+    }
+/*
     private void updateLayout() {
         Collections.sort(mPoll.getOptions(), new Comparator<Poll.PollOption>() {
             @Override
@@ -172,7 +206,7 @@ public class PollDetailActivity extends LanguageChangableActivity implements Obs
                 return Integer.valueOf(pollOption.vote).compareTo(t1.vote);
             }
         });
-    }
+    }*/
 
     private void updatePb(Poll mPoll, Poll.PollOption option, ProgressBar pb) {
         if(pb == null) {
@@ -186,13 +220,23 @@ public class PollDetailActivity extends LanguageChangableActivity implements Obs
             pb.setProgress((int) (100.0 * option.vote / mPoll.votes));
         }
     }
-    private void updateSneakPeakLayout(LinearLayout layout, Poll mPoll) {
+    private void updateSneakPeakLayout(LinearLayout layout, Poll mPoll ) {
 
         LayoutInflater inflater = getLayoutInflater();
         int max = 3;
         int i = 0;
 
-        for(Poll.PollOption option : mPoll.getOptions()) {
+        // Sort Options
+        List<Poll.PollOption> pollOptions = new ArrayList<>(mPoll.getOptions());
+        Collections.sort(pollOptions, new Comparator<Poll.PollOption>() {
+            @Override
+            public int compare(Poll.PollOption pollOption, Poll.PollOption t1) {
+                return Integer.valueOf(t1.vote).compareTo(pollOption.vote);
+            }
+        });
+
+
+        for(Poll.PollOption option : pollOptions) {
             if(i == max)
                 break;
             if(option.getPollMenu() == null)
@@ -210,7 +254,7 @@ public class PollDetailActivity extends LanguageChangableActivity implements Obs
             layout.addView(pollView);
             i++;
 
-            pollOptionToPbMap.put(option, pb);
+            topPollOptions.add(new Pair(tv, pb));
         }
     }
     @Override
@@ -224,5 +268,21 @@ public class PollDetailActivity extends LanguageChangableActivity implements Obs
     }
 
 
+    @Override
+    public void onPollListChanged(List<Poll> pollList) {
 
+    }
+
+    @Override
+    public void onPollInserted(Poll poll) {
+        if(mPoll != null && mPoll.equals(poll)) {
+            mPoll = poll;
+            List<Poll.PollOption> options = poll.getOptions();
+
+            if(!options.isEmpty()){
+                // trigger reloading of sneak peak layout
+                onChanged(options.get(0));
+            }
+        }
+    }
 }

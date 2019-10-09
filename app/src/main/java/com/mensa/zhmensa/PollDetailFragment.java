@@ -106,7 +106,7 @@ public class PollDetailFragment extends Fragment implements Poll.PollOptionChang
                             appBarLayout.setTitle(mPoll.label);
                         }
                         if(votesTextView != null) {
-                            votesTextView.setText("Stimmen: " + mPoll.votes);
+                            votesTextView.setText(String.format(getContext().getString(R.string.votes), mPoll.votes));
                         }
                         if(weekdayTextView != null) {
                             weekdayTextView.setText(Helper.getFullNameForDay(mPoll.weekday, getContext()));
@@ -126,7 +126,7 @@ public class PollDetailFragment extends Fragment implements Poll.PollOptionChang
             mRecyclerView.setAdapter(new PollCardAdapter(mPoll, this));
 
             if(votesTextView != null) {
-                votesTextView.setText("Stimmen: " + mPoll.votes);
+                votesTextView.setText(String.format(getContext().getString(R.string.votes), mPoll.votes));
             }
             if(weekdayTextView != null) {
                 weekdayTextView.setText(Helper.getFullNameForDay(mPoll.weekday, getContext()));
@@ -157,8 +157,9 @@ public class PollDetailFragment extends Fragment implements Poll.PollOptionChang
             appBarLayout.setTitle(mPoll.label);
         }
         if(votesTextView != null) {
-            votesTextView.setText("Stimmen: " + mPoll.votes);
+            votesTextView.setText(String.format(getContext().getString(R.string.votes), mPoll.votes));
         }
+
         if(weekdayTextView != null) {
             weekdayTextView.setText(Helper.getFullNameForDay(mPoll.weekday, getContext()));
         }

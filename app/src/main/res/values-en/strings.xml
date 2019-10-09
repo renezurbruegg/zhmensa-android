@@ -62,5 +62,6 @@
     <string name="survey_share_heade">Poll\nTitle:</string>
     <string name="title_poll_detail">poll details</string>
     <string name="update_successfully">Updated Successfully</string>
+    <string name="votes">Votes: %d</string>
 
 </resources>

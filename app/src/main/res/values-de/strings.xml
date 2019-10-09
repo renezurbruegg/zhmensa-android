@@ -90,4 +90,5 @@
     <string name="poll_from">Umfrage vom %s</string>
     <string name="share">Teilen</string>
     <string name="title_poll_detail">Details Umfrage</string>
+    <string name="votes">Stimmen: %d</string>
 </resources>

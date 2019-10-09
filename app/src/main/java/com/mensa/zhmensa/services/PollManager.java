@@ -72,6 +72,9 @@ public class PollManager {
             callback.invoke(activePolls);
         } else {
             activePolls = new ArrayList<>();
+
+
+
             PollApi.getPollsForId(getIdList(ctx), ctx, new Function1<List<Poll>, Void>() {
                 @Override
                 public Void invoke(List<Poll> pollList) {
@@ -80,6 +83,7 @@ public class PollManager {
                         for(Poll poll : pollList) {
                             if(!activePolls.contains(poll)) {
                                 activePolls.add(poll);
+                                notifyPollListChanged(poll);
                             }
                         }
                     }
@@ -332,7 +336,7 @@ public class PollManager {
             return;
         }
 
-        List<IMenu> menus = selectedMensa.getMenusForDayAndCategory(weekday,mealType);
+        List<IMenu> menus = selectedMensa.getMenusForDayAndCategory(weekday,mealType, MensaManager.getMenuFilter(ctx));
         showAddMenusToPollDialog(menus, selectedMensa.getUniqueId(),  ctx, callbackFunction);
     }
 
