@@ -145,8 +145,15 @@ public class MensaOverviewFragment extends Fragment implements Observer<Object> 
     public void notifyDatasetChanged() {
         Log.d("MensaOverViewFrag", " added? " + isAdded());
         if (viewpager != null) {
-            Log.e("MensaOverview.ndc", "viewpager was null for mensa id: " + getMensaId());
+            if(viewpager.getAdapter() == null) {
+                Log.d("MensaOverViewFrag", "Meal Pager adapter was null");
+                return;
+               // setUpAdapters(getA);
+            }
             viewpager.getAdapter().notifyDataSetChanged();
+        } else {
+
+            Log.e("MensaOverview.ndc", "viewpager was null for mensa id: " + getMensaId());
         }
     }
 
